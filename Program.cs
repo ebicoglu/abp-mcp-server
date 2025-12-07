@@ -1,5 +1,6 @@
 ﻿using AbpMcpServer.Services;
 using AbpMcpServer.Tools;
+using AbpMcpServer.Services.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -25,6 +26,10 @@ class Program
         {
             // We must use Stderr for logging because Stdout is used for the MCP protocol
             configure.AddConsole(options => options.LogToStandardErrorThreshold = LogLevel.Trace);
+            configure.AddFile(options =>
+            {
+                options.Params.LogPath = "logs/mcp_server.log";
+            });
             configure.SetMinimumLevel(LogLevel.Debug);
         });
 
