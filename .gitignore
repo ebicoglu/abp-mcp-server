@@ -253,8 +253,7 @@ paket-files/
 # ABP Studio
 **/.abpstudio/
 
-# FinancialDashboard
-FinancialDashboard/Logs/logs.txt
+logs/*
 
 *.db
 *.db-shm
