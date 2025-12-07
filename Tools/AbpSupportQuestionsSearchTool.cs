@@ -2,6 +2,7 @@ using AbpMcpServer.Models;
 using AngleSharp;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace AbpMcpServer.Tools;
 
@@ -40,6 +41,8 @@ public class AbpSupportQuestionsSearchTool : IMcpTool
             return new { items = cachedResults };
         }
 
+        _logger.LogInformation("*** Searching ABP Support questions for '{query}'...", query);
+
         // ABP Support site search is likely server-side.
         // We can try to scrape the list page if we can filter via URL, or just return a link to the search page for now if scraping is too complex without a real browser.
         // However, let's try to see if there is a query param we can use.
@@ -70,6 +73,8 @@ public class AbpSupportQuestionsSearchTool : IMcpTool
         // For now, I'll search for links containing the query text.
 
         var links = document.QuerySelectorAll("a");
+        var sbLog = new StringBuilder();
+
         foreach (var link in links)
         {
             var title = link.TextContent.Trim();
@@ -91,11 +96,15 @@ public class AbpSupportQuestionsSearchTool : IMcpTool
                     Snippet = "Found in support questions."
                 });
 
+                sbLog.AppendLine(title + " - " + href);
+
                 if (results.Count >= 5) break;
             }
         }
 
         _cache.Set(cacheKey, results, TimeSpan.FromMinutes(10));
+
+        _logger.LogInformation("*** Searching ABP Support questions completed. Results: {results}", sbLog);
 
         return new { items = results };
     }

@@ -1,6 +1,7 @@
 using AbpMcpServer.Models;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using System.Text;
 using System.Text.Json;
 using System.Web;
 
@@ -44,6 +45,8 @@ public class AbpGithubIssuesSearchTool : IMcpTool
             return new { items = cachedResults };
         }
 
+        _logger.LogInformation("*** Searching GitHub issues for '{query}'...", query);
+
         var q = HttpUtility.UrlEncode($"repo:abpframework/abp {query} state:{state}");
         var url = $"https://api.github.com/search/issues?q={q}&per_page=5";
 
@@ -53,6 +56,7 @@ public class AbpGithubIssuesSearchTool : IMcpTool
         var json = await response.Content.ReadAsStringAsync();
         using var doc = JsonDocument.Parse(json);
         var items = doc.RootElement.GetProperty("items");
+        var sbLog = new StringBuilder();
 
         var results = new List<SearchResultItem>();
         foreach (var item in items.EnumerateArray())
@@ -63,9 +67,13 @@ public class AbpGithubIssuesSearchTool : IMcpTool
                 Url = item.GetProperty("html_url").GetString() ?? "",
                 Snippet = item.GetProperty("body").GetString()?.Substring(0, Math.Min(item.GetProperty("body").GetString()?.Length ?? 0, 200)) + "..." ?? ""
             });
+
+            sbLog.AppendLine(item.GetProperty("title").GetString() + " - " + item.GetProperty("html_url").GetString());
         }
 
         _cache.Set(cacheKey, results, TimeSpan.FromMinutes(60));
+
+        _logger.LogInformation("*** Searching GitHub issues completed. Results: {results}", sbLog);
 
         return new { items = results };
     }

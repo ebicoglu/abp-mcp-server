@@ -2,6 +2,7 @@ using AbpMcpServer.Models;
 using AngleSharp;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace AbpMcpServer.Tools;
 
@@ -56,7 +57,11 @@ public class AbpDocsSearchTool : IMcpTool
         // Alternative: Scrape the navigation tree to find matching titles.
         // The navigation tree is usually loaded on the docs page.
 
+
         var url = $"https://abp.io/docs/{version}";
+
+        _logger.LogInformation("*** Searching ABP Docs for '{query}' on {url}...", query, url);
+
         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
         var document = await context.OpenAsync(url);
 
@@ -65,6 +70,7 @@ public class AbpDocsSearchTool : IMcpTool
         // This is a naive implementation: it looks for links in the nav menu that match the query.
         // A real search would need the Algolia index or a server-side search handler.
         var links = document.QuerySelectorAll("a");
+        var sbLog = new StringBuilder();
 
         foreach (var link in links)
         {
@@ -86,11 +92,14 @@ public class AbpDocsSearchTool : IMcpTool
                     Snippet = "Found in documentation navigation."
                 });
 
+                sbLog.AppendLine(title + " - " + href);
                 if (results.Count >= 5) break;
             }
         }
 
         _cache.Set(cacheKey, results, TimeSpan.FromMinutes(10));
+
+        _logger.LogInformation("*** Searching ABP Docs completed. Results: {results}", sbLog);
 
         return new { items = results };
     }
