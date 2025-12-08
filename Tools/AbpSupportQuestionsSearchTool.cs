@@ -41,7 +41,7 @@ public class AbpSupportQuestionsSearchTool : IMcpTool
             return new { items = cachedResults };
         }
 
-        _logger.LogInformation("*** Searching ABP Support questions for '{query}'...", query);
+        _logger.LogInformation(">>> Searching ABP Support questions for '{query}'...", query);
 
         // ABP Support site search is likely server-side.
         // We can try to scrape the list page if we can filter via URL, or just return a link to the search page for now if scraping is too complex without a real browser.
@@ -104,7 +104,7 @@ public class AbpSupportQuestionsSearchTool : IMcpTool
 
         _cache.Set(cacheKey, results, TimeSpan.FromMinutes(10));
 
-        _logger.LogInformation("*** Searching ABP Support questions completed. Results: {results}", sbLog);
+        _logger.LogInformation("<<< Searching ABP Support questions completed. Results ({resultCount}):\n\r{results}", results.Count , sbLog.ToString());
 
         return new { items = results };
     }

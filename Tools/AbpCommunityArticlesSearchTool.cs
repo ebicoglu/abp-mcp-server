@@ -41,7 +41,7 @@ public class AbpCommunityArticlesSearchTool : IMcpTool
             return new { items = cachedResults };
         }
 
-        _logger.LogInformation("*** Searching ABP Community Articles for '{query}'...", query);
+        _logger.LogInformation(">>> Searching ABP Community Articles for '{query}'...", query);
 
         var url = "https://abp.io/community/articles";
         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
@@ -79,7 +79,7 @@ public class AbpCommunityArticlesSearchTool : IMcpTool
 
         _cache.Set(cacheKey, results, TimeSpan.FromMinutes(10));
 
-        _logger.LogInformation("*** Searching ABP Community Articles completed. Results: {results}", sbLog);
+        _logger.LogInformation("<<< Searching ABP Community Articles completed. Results ({resultCount}):\n\r{results}", links.Count, sbLog.ToString());
 
         return new { items = results };
     }

@@ -6,17 +6,20 @@ using Microsoft.Extensions.Logging;
 
 namespace AbpMcpServer;
 
-class Program
+internal class Program
 {
-    static async Task Main(string[] args)
+    private static async Task Main(string[] args)
     {
         var serviceCollection = new ServiceCollection();
         ConfigureServices(serviceCollection);
-
         var serviceProvider = serviceCollection.BuildServiceProvider();
-
         var server = serviceProvider.GetRequiredService<McpServer>();
-        await server.RunAsync();
+
+        //for test using `test_input.json`
+        await server.RunAsync(File.OpenRead("test_input.json"));
+        
+        //for production using StdIn/StdOut
+        //await server.RunAsync();
     }
 
     private static void ConfigureServices(IServiceCollection services)

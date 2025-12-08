@@ -21,12 +21,12 @@ public class McpServer
         };
     }
 
-    public async Task RunAsync(CancellationToken cancellationToken = default)
+    public async Task RunAsync(Stream? input = null, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("ABP MCP Server started...");
 
-        using var stdin = Console.OpenStandardInput();
-        using var reader = new StreamReader(stdin);
+        using var stream = input ?? Console.OpenStandardInput();
+        using var reader = new StreamReader(stream);
 
         while (!cancellationToken.IsCancellationRequested)
         {
